@@ -25,6 +25,7 @@ class GameStatus(StrEnum):
 class Player:
     name: str
     piece: Piece
+    is_computer: bool
 
 
 @dataclass
@@ -135,18 +136,52 @@ class Board:
         # The move is valid otherwise, so let's place it
         self.moves.append(Move(player, row, col))
 
+    def computer_move(self, player) -> None:
+        # Get the spaces with most real estate
+        # Or Dumb
+
+        # Naive version: literally just claim the first open square you see
+        b = self._make_board() # Grid of moves
+
+        for i, row in enumerate(b): # Rows
+
+            for j, piece_2 in enumerate(row): # Cols
+
+                if piece_2 == Piece.EMPTY:
+
+                    self.moves.append(Move(player, i, j))
+                    return
+                    
+        # ToDo:
+        # Handler for if the board is already filled up
+            
+
+
 @app.command()
+
+# ToDo: Need to have a way to flag a Player as the computer
 def main(
     player_1: Annotated[str, typer.Option(
-        prompt="Player 1's Name (will play as X)")],
+        prompt="Player 1's Name (will play as X). Enter 'cpu' for computer player")],
     player_2: Annotated[str, typer.Option(
-        prompt="Player 2's Name (will play as O)")],
+        prompt="Player 2's Name (will play as O). Enter 'cpu' for computer player")],
     board_size: Annotated[int, typer.Option(
         prompt="Board Side Length (Minimum of 3)", min=3)] = 3,
 ):
 
-    p1 = Player(player_1, Piece.X)
-    p2 = Player(player_2, Piece.O)
+    # Woah, this works! 
+    p1 = Player(player_1, Piece.X, player_1 in ("", "cpu"))
+    p2 = Player(player_2, Piece.O, player_2 in ("", "cpu"))
+
+    if player_1 in ("", "cpu"):
+        p1 = Player(player_1, Piece.X, True)
+    else:
+        p1 = Player(player_1, Piece.X, False)
+
+    if player_2 in ("", "cpu"):
+        p2 = Player(player_2, Piece.O, True)
+    else:
+        p2 = Player(player_2, Piece.O, False)
 
     b = Board(board_size,[p1, p2])
 
@@ -154,22 +189,29 @@ def main(
 
         print(b, "\n")
 
-        position = typer.prompt(
-            f"Player {b.current_player.name}: Enter the (row col) to place your piece {b.current_player.piece} (use 1-based indexing)") 
         try:
-            row, col = map(int, position.split())
-        except ValueError:
-            print(f"The (row, col) input didn't work. Enter two integer values separated by a space.")
-            continue
 
-        try:
-            b.move(b.current_player, row-1 , col-1)
+            if b.current_player.is_computer:
+                b.computer_move(b.current_player)
+            else:
+
+                position = typer.prompt(
+                    f"Player {b.current_player.name}: Enter the (row col) to place your piece {b.current_player.piece} (use 1-based indexing)") 
+                try:
+                    row, col = map(int, position.split())
+                except ValueError:
+                    print(f"The (row, col) input didn't work. Enter two integer values separated by a space.")
+                    continue
+
+                b.move(b.current_player, row-1 , col-1)
+
             if b.check_game_status(b.current_player) == GameStatus.WIN:
                 print(f"Player {b.current_player.name} WON!")
                 print(b, "\n")
                 return
             elif b.check_game_status(b.current_player) == GameStatus.DRAW:
                 print("The game ended in a draw!")
+                print(b, "\n")
                 return
 
         except ValueError as e: 

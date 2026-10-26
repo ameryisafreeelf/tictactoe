@@ -1,3 +1,3 @@
 ### Tic Tac Toe
 
-For Recurse Pair Programming!
+For Recurse Pair Programming! Simple CLI implementation in Python.
