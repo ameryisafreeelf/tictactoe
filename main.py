@@ -159,7 +159,6 @@ class Board:
 
 @app.command()
 
-# ToDo: Need to have a way to flag a Player as the computer
 def main(
     player_1: Annotated[str, typer.Option(
         prompt="Player 1's Name (will play as X). Enter 'cpu' for computer player")],
@@ -170,8 +169,8 @@ def main(
 ):
 
     # Woah, this works! 
-    p1 = Player(player_1, Piece.X, player_1 in ("", "cpu"))
-    p2 = Player(player_2, Piece.O, player_2 in ("", "cpu"))
+    p1 = Player(player_1, Piece.X, player_1 in ("cpu"))
+    p2 = Player(player_2, Piece.O, player_2 in ("cpu"))
 
     if player_1 in ("", "cpu"):
         p1 = Player(player_1, Piece.X, True)
