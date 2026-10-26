@@ -172,16 +172,6 @@ def main(
     p1 = Player(player_1, Piece.X, player_1 in ("cpu"))
     p2 = Player(player_2, Piece.O, player_2 in ("cpu"))
 
-    if player_1 in ("", "cpu"):
-        p1 = Player(player_1, Piece.X, True)
-    else:
-        p1 = Player(player_1, Piece.X, False)
-
-    if player_2 in ("", "cpu"):
-        p2 = Player(player_2, Piece.O, True)
-    else:
-        p2 = Player(player_2, Piece.O, False)
-
     b = Board(board_size,[p1, p2])
 
     while b.check_game_status(b.current_player) == GameStatus.IN_PROGRESS:
